@@ -354,30 +354,41 @@ function calc(){
   }
   strideLen += parseInt(terrainEl.value,10);
 
-  const typeAdj = jumpAdj(j1El.value, j2El.value);
-  const margin = 250; // cm aterrizaje+despegue
+  const typeAdj = jumpAdj(j1, j2);
   const distCm = distM * 100;
+  // Escala los rangos reales (calibrados sobre batida base 3.68 m) a la batida
+  // efectiva de este cálculo, y desplaza por el ajuste de tipo de salto.
+  const scale = strideLen / BASE_STRIDE_CM;
 
-  const rawStrides = (distCm - margin) / strideLen;
-  const nearest = Math.max(0, Math.round(rawStrides));
-  const idealDist = margin + nearest*strideLen + typeAdj;
-  const diff = distCm - idealDist;
+  let best = null;
+  Object.keys(refRanges).forEach(nStr=>{
+    const n = parseInt(nStr,10);
+    const [lo,hi] = refRanges[n];
+    const loCm = lo*100*scale + typeAdj;
+    const hiCm = hi*100*scale + typeAdj;
+    const inRange = distCm >= loCm && distCm <= hiCm;
+    const center = (loCm+hiCm)/2;
+    const distToRange = inRange ? 0 : Math.min(Math.abs(distCm-loCm), Math.abs(distCm-hiCm));
+    if(!best || distToRange < best.distToRange){
+      best = {n, loCm, hiCm, inRange, distToRange, center};
+    }
+  });
 
-  strideOut.textContent = nearest + (nearest===1 ? ' batida' : ' batidas');
-
+  strideOut.textContent = best.n + (best.n===1 ? ' batida' : ' batidas');
   resultCard.classList.remove('ok','long','short');
+
   let verdict;
-  if(Math.abs(diff) <= 8){
-    verdict = 'Distancia ajustada, batida natural.';
+  if(best.inRange){
+    verdict = `Distancia dentro de rango real (${(best.loCm/100).toFixed(2)}–${(best.hiCm/100).toFixed(2)} m). Batida natural.`;
     resultCard.classList.add('ok');
-  } else if(diff > 8){
-    verdict = `Distancia larga: alargar galope (~${Math.round(diff)} cm de más).`;
+  } else if(distCm > best.hiCm){
+    verdict = `Distancia larga: alargar galope (~${Math.round(distCm-best.hiCm)} cm sobre el rango real).`;
     resultCard.classList.add('long');
   } else {
-    verdict = `Distancia corta: acortar galope (~${Math.abs(Math.round(diff))} cm de menos).`;
+    verdict = `Distancia corta: acortar galope (~${Math.round(best.loCm-distCm)} cm bajo el rango real).`;
     resultCard.classList.add('short');
   }
-  if(j1El.value==='ria' || j2El.value==='ria'){
+  if(j1==='ria' || j2==='ria'){
     verdict += ' Nota: la ría se calcula como oxer (obstáculo sobre agua), no como línea aparte.';
   }
   verdictOut.textContent = verdict;
@@ -391,6 +402,11 @@ distRange.addEventListener('input', ()=>{ distNum.value=distRange.value; calc();
 // Rangos reales de referencia (caballo, batida base 3.60 m) tomados de tablas
 // de diseño de pista de uso extendido en la disciplina. Se escalan proporcionalmente
 // si se selecciona una altura de pista con batida distinta a la base.
+// Batida base de calibración: obtenida por regresión sobre los rangos reales
+// de refRanges (no el valor teórico de 3.60 m que suele citarse de forma
+// simplificada). Con margen de aterrizaje/despegue de ~2.87 m implícito.
+const BASE_STRIDE_CM = 368;
+
 const refRanges = {
   1: [6.0, 7.0],
   2: [9.5, 10.2],
