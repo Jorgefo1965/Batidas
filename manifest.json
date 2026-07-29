@@ -1,0 +1,22 @@
+{
+  "name": "Batidas de Pista",
+  "short_name": "Batidas",
+  "description": "Calculadora de distancias y batidas entre obstáculos de salto ecuestre",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#F5F4EF",
+  "theme_color": "#26215C",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
