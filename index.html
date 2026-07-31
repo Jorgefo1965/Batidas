@@ -221,7 +221,7 @@
     <div class="card">
       <p style="font-size:14px; font-weight:600; margin:0 0 6px;">Fuente de los rangos</p>
       <p style="font-size:12px; color:var(--text-muted); line-height:1.6; margin:0;">
-        Rangos de distancia basados en tablas de referencia de diseño de pista de uso extendido en la disciplina (batida base 3.60 m). Ajusta estos valores con mediciones reales de tu pista y tus caballos: son un punto de partida técnico, no un reemplazo de tu criterio de armador.
+        Tabla de nivel competencia (caballo, batida base 3.60 m, margen de aterrizaje+despegue ~3.70 m — convención de 6 pies + 6 pies). El valor de 7 batidas es estimado por extrapolación. Ajusta estos valores con mediciones reales de tu pista y tus caballos: son un punto de partida técnico, no un reemplazo de tu criterio de armador.
       </p>
     </div>
   </div>
@@ -402,19 +402,21 @@ distRange.addEventListener('input', ()=>{ distNum.value=distRange.value; calc();
 // Rangos reales de referencia (caballo, batida base 3.60 m) tomados de tablas
 // de diseño de pista de uso extendido en la disciplina. Se escalan proporcionalmente
 // si se selecciona una altura de pista con batida distinta a la base.
-// Batida base de calibración: obtenida por regresión sobre los rangos reales
-// de refRanges (no el valor teórico de 3.60 m que suele citarse de forma
-// simplificada). Con margen de aterrizaje/despegue de ~2.87 m implícito.
-const BASE_STRIDE_CM = 368;
+// Batida base de calibración: 3.60 m (estándar clásico), validado por regresión
+// sobre la tabla real de abajo, que da margen implícito de aterrizaje+despegue
+// de ~3.70 m — consistente con la convención de diseño de pista de 6 pies de
+// aterrizaje + 6 pies de despegue (≈3.66 m). Tabla de nivel competencia (caballo),
+// no de nivel escolar/pony, que da distancias más cortas y no corresponde.
+const BASE_STRIDE_CM = 360;
 
 const refRanges = {
-  1: [6.0, 7.0],
-  2: [9.5, 10.2],
-  3: [13.5, 15.0],
-  4: [17.0, 18.5],
-  5: [20.5, 22.5],
-  6: [23.5, 26.0],
-  7: [27.0, 30.0]
+  1: [7.50, 7.90],
+  2: [10.40, 10.80],
+  3: [14.00, 15.00],
+  4: [17.50, 18.50],
+  5: [21.50, 22.50],
+  6: [24.40, 26.20],
+  7: [27.50, 29.50] // estimado por extrapolación, verificar con medición real
 };
 
 function renderRefTable(){
